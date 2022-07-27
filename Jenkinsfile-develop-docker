@@ -1,43 +1,55 @@
-Pipeline {
+pipeline {
     agent any
     
     
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'docker',url: 'https://github.com/emcdanie/RepoCS.git'
-	        }
+                git branch: 'deploy',url: 'https://github.com/emcdanie/RepoCS.git'
+            }
         }        
         stage('Requirements') {
             steps {
                 echo 'Installing dependencies...'
                 sh 'pip3 install -r requirements.txt'
-                sh 'python3 project/init/init_db.py'
             }
         }
         stage('Unit/Integration tests') {
-           steps {
+            steps {
                 echo 'Unit/Integration...'
                 sh 'python3 -m unittest discover -s tests/unit -v'
             }
-        }       
-       stage('Acceptance tests') {
+        }        
+        stage('Acceptance tests') {
             steps {
                 echo 'Acceptance...'
-                sh 'python3 -m unittest discover -s tests/acceptance-flask/ -v'
+                sh 'python3 -m unittest discover -s tests/acceptance -v'
             }
-        }
+        }     
         stage('Create image') {
             steps {
                 echo 'creating image...'
-                sh 'docker build -t elletamc/app:latest -f Dockerfile .'
+
+                /** Docker hub case **/                
+                // sh 'docker build -t elletamc/csapp:v1 -f Dockerfile .'
+
+                /** ACR case **/
+                sh 'docker build -t docker push elletamc.azurecr.io/elletamccsapp:v1 -f Dockerfile .'
             }
         } 
         stage('Publish image') {
             steps {
                 echo 'pushing image...'
-                withDockerRegistry([ credentialsId: "docker-hub-credentials", url: "" ]) {
-                    sh 'docker push elletamc/app:latest'
+                
+                /** Docker hub case **/                
+                /*withDockerRegistry([ credentialsId: "docker-hub-credentials", url: "" ]) {
+                    sh 'docker push elletamc/csapp:v1'
+                }*/
+
+                /** ACR case **/
+                // To get acr url use: az acr list -o table
+                withDockerRegistry([ credentialsId: "acr-credentials", url: "https://ricardobootcampregistry.azurecr.io" ]) {
+                    sh 'docker push elletamc.azurecr.io/elletamccsapp:v1'
                 }
             }
         } 
