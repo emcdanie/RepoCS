@@ -48,7 +48,7 @@ pipeline {
 
                 /** ACR case **/
                 // To get acr url use: az acr list -o table
-                withDockerRegistry([ credentialsId: "acr-credentials", url: "https://ricardobootcampregistry.azurecr.io" ]) {
+                withDockerRegistry([ credentialsId: "acr-credentials", url: "https://elletamc.azurecr.io" ]) {
                     sh 'docker push elletamc.azurecr.io/elletamccsapp:v1'
                 }
             }
