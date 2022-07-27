@@ -5,7 +5,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'deploy',url: 'https://github.com/emcdanie/RepoCS.git'
+                git branch: 'main',url: 'https://github.com/emcdanie/RepoCS.git'
             }
         }        
         stage('Requirements') {
